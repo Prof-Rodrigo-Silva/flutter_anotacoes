@@ -6,13 +6,15 @@
 <a href="https://github.com/Prof-Rodrigo-Silva/flutter_anotacoes/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/Prof-Rodrigo-Silva/flutter_anotacoes"></a>
 
 
-**Project Status: under development** :warning:
+**Project Status: concluded** :heavy_check_mark:
 
 ## **Description**
 
 Flutter design using sqliete, basic CRUD. Registration list with edit buttons and deletion directly on the card.
 
-Next step is the implementation of a dismissible for deletion.
+Next step is the implementation of a dismissible for deletion. :heavy_check_mark:
+
+Dismissible for deletion and snackbar to undo actions were also implemented.
 
 ## **About Flutter**
 

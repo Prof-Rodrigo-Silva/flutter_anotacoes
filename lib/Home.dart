@@ -16,6 +16,7 @@ class _HomeState extends State<Home> {
   TextEditingController _descricaoController = TextEditingController();
   var _db = AnotacaoHelper();
   List<Anotacao> _anotacoes = List<Anotacao>();
+  Map<String,dynamic> _ultimaAnotacaoRemovida = Map();
 
   _exibirTelaCadastro( {Anotacao anotacao}){
 
@@ -114,10 +115,18 @@ class _HomeState extends State<Home> {
 
   }
 
+  _salvarAnotacaoSnack(Anotacao ultimaAnotacaoRemovida) async{
+    Anotacao anotacao = Anotacao(ultimaAnotacaoRemovida.titulo,ultimaAnotacaoRemovida.descricao,DateTime.now().toString());
+    int i = await _db.salvarAnotacaoSnackBar(anotacao);
+    _recuperarAnotacaos();
+
+  }
+
   _removerAnotacao(int id) async{
     await _db.removerAnotacao(id);
     _recuperarAnotacaos();
   }
+
   _formatarData(String data){
 
     initializeDateFormatting("pt_BR");
@@ -145,58 +154,93 @@ class _HomeState extends State<Home> {
         title: Text("Minhas anotações"),
         backgroundColor: Colors.lightBlue,
       ),
-      body:
-      Column(
+      body: Column(
         children: <Widget>[
           Expanded(
               child: ListView.builder(
                   itemCount: _anotacoes.length,
                   itemBuilder: (context,index){
                     final anotacao = _anotacoes[index];
-                    return Card(
-                     child: ListTile(
-                        title: Text(anotacao.titulo),
-                        subtitle: Text(""
-                            "${_formatarData(anotacao.data)} - "
-                            "${anotacao.descricao}"),
-                       trailing: Row(
-                         mainAxisSize: MainAxisSize.min,
-                         children: <Widget>[
-                           GestureDetector(
-                             onTap: (){
-                               _exibirTelaCadastro(anotacao: anotacao);
-                             },
-                             child: Padding(
-                               padding: EdgeInsets.only(
-                                   top: 16,
-                                   bottom: 16,
-                                   left: 5,
-                                   right: 5),
-                               child: Icon(Icons.edit,
-                                  color: Colors.blue,
+                    return
+                      Dismissible(
+                        background: Container(
+                        color: Colors.red,
+                        padding: EdgeInsets.all(16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: <Widget>[
+                              Icon(Icons.delete,
+                                color: Colors.white,)
+                            ],
+                          ),
+                        ),
+                          direction: DismissDirection.endToStart,
+                          onDismissed: (direction){
+
+                            Anotacao _ultimaAnotacaoRemovida = anotacao;
+                            _removerAnotacao(anotacao.id);
+                            final snackbar = SnackBar(
+                                content: Text("Removido!"),
+                                duration: Duration(seconds: 5),
+                                action: SnackBarAction(
+                                  label: "Desfazer",
+                                  onPressed: (){
+                                    _salvarAnotacaoSnack(_ultimaAnotacaoRemovida);
+                                  },
                                 ),
-                            ),
-                           ),
-                           GestureDetector(
-                             onTap: (){
-                               _removerAnotacao(anotacao.id);
-                             },
-                             child: Padding(
-                               padding: EdgeInsets.only(
-                                   top: 16,
-                                   bottom: 16,
-                                   left: 5,
-                                   right: 5),
-                               child: Icon(Icons.delete,
-                                 color: Colors.red,
-                               ),
-                             ),
-                           )
-                         ],
-                       ),
-                     ),
-                    );
-                  }))
+                            );
+                            Scaffold.of(context).showSnackBar(snackbar);
+                          },
+                          key: Key(DateTime.now().millisecondsSinceEpoch.toString()),
+
+                                child: Card(
+                                 child: ListTile(
+                                    title: Text(anotacao.titulo),
+                                    subtitle: Text(""
+                                        "${_formatarData(anotacao.data)} - "
+                                        "${anotacao.descricao}"),
+                                   trailing: Row(
+                                     mainAxisSize: MainAxisSize.min,
+                                     children: <Widget>[
+                                       GestureDetector(
+                                         onTap: (){
+                                           _exibirTelaCadastro(anotacao: anotacao);
+                                         },
+                                         child: Padding(
+                                           padding: EdgeInsets.only(
+                                               top: 16,
+                                               bottom: 16,
+                                               left: 5,
+                                               right: 5),
+                                           child: Icon(Icons.edit,
+                                              color: Colors.blue,
+                                            ),
+                                        ),
+                                       ),
+                                       GestureDetector(
+                                         onTap: (){
+                                           _removerAnotacao(anotacao.id);
+                                         },
+                                         child: Padding(
+                                           padding: EdgeInsets.only(
+                                               top: 16,
+                                               bottom: 16,
+                                               left: 5,
+                                               right: 5),
+                                           child: Icon(Icons.delete,
+                                             color: Colors.red,
+                                           ),
+                                         ),
+                                       )
+                                     ],
+                                   ),
+                                 ),
+                                )
+                      );
+                  }
+                  )
+          )
+
         ],
       ),
       floatingActionButton: FloatingActionButton(

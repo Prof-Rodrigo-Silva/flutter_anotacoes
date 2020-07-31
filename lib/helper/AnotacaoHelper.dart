@@ -87,4 +87,13 @@ class AnotacaoHelper {
     List anotacoes = await bancoDados.rawQuery(sql);
     return anotacoes;
   }
+  Future<int> salvarAnotacaoSnackBar(Anotacao anotacao) async{
+    var bancoDados = await db;
+
+    int idResultado = await bancoDados.insert(
+        nomeTabela,
+        anotacao.toMap()
+    );
+    return idResultado;
+  }
 }
